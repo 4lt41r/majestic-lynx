@@ -46,6 +46,7 @@ function populateForm(prefs) {
   // Weather
   setText_('weatherCity',   prefs.weatherCity  ?? '');
   setSelect('weatherUnits', prefs.weatherUnits ?? 'metric');
+  setSelect('sceneMode',    prefs.sceneMode    ?? 'toon');
 }
 
 // ── Bind all controls to auto-save ────────────────────────────
@@ -53,7 +54,7 @@ function bindControls() {
   const save = debounce(saveAll, 300);
 
   // Select dropdowns
-  ['theme', 'animationIntensity', 'searchEngine'].forEach(id => {
+  ['theme', 'animationIntensity', 'searchEngine', 'sceneMode'].forEach(id => {
     document.getElementById(id)?.addEventListener('change', () => {
       // Reflect theme/animation on this page immediately
       if (id === 'theme')              applyThemePreview(getValue(id));
@@ -104,6 +105,7 @@ async function saveAll() {
     },
     weatherCity:   getValue('weatherCity').trim(),
     weatherUnits:  getValue('weatherUnits'),
+    sceneMode:     getValue('sceneMode'),
   };
 
   await setPrefs(prefs);

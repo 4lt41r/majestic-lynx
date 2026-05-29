@@ -65,6 +65,18 @@
         </div>
 
         <div class="settings-row">
+          <label class="settings-label" for="sceneMode">
+            Sukuna rendering mode
+            <span class="settings-hint">Toon = built-in geometry; Billboard = 2D portrait; GLTF = 3D model file (requires sukuna.glb)</span>
+          </label>
+          <select id="sceneMode" name="sceneMode" class="ctrl ctrl--select">
+            <option value="toon">Toon (default)</option>
+            <option value="billboard">Canvas Billboard</option>
+            <option value="gltf">GLTF Model</option>
+          </select>
+        </div>
+
+        <div class="settings-row">
           <label class="settings-label" for="particlesEnabled">
             Floating particles
             <span class="settings-hint">Animated background dots — disable to reduce GPU usage</span>

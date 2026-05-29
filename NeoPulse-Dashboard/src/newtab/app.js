@@ -2,12 +2,13 @@ import { DEFAULTS, SEARCH_ENGINES, VERSION } from '../shared/constants.js';
 import { getPrefs, setPrefs, onPrefsChange }  from '../shared/storage.js';
 import { runNetworkCheck, scheduleAutoRefresh } from '../shared/network.js';
 import { initScene, startLoop, getCamera, getRenderer, getRaycaster } from './scene.js';
-import { buildRoom, buildSkeletonPile, bloodUniforms } from './room.js';
-import { buildSukuna, animateSukuna } from './sukuna.js';
+import { buildRoom, buildSkeletonPile, bloodUniforms, animateRoom } from './room.js';
+import { buildSukuna, animateSukuna, disposeSukuna } from './sukuna.js';
 import { buildClock, buildQuickLinkPanels, buildNetworkStrip, buildSearchPedestal } from './ui-objects.js';
 
 let prefs            = { ...DEFAULTS };
 let autoRefreshTimer = null;
+let _scene           = null;
 
 // 3D object handles (set during init)
 let clockObj        = null;
@@ -26,11 +27,12 @@ async function init() {
 
   const canvas = document.getElementById('scene-canvas');
   const { scene } = initScene(canvas);
+  _scene = scene;
 
   // ── Build 3D scene ──
   buildRoom(scene);
   buildSkeletonPile(scene);
-  sukunaRefs    = buildSukuna(scene);
+  sukunaRefs    = await buildSukuna(scene, prefs.sceneMode ?? 'toon');
   clockObj      = buildClock(scene);
   quickLinksObj = buildQuickLinkPanels(
     scene,
@@ -65,6 +67,7 @@ async function init() {
   startLoop((delta, elapsed) => {
     // Blood pool ripple
     bloodUniforms.time.value = elapsed;
+    animateRoom(elapsed);
 
     // Sukuna idle
     animateSukuna(sukunaRefs, elapsed);
@@ -196,6 +199,14 @@ function listenForPrefChanges() {
       prefs.refreshInterval = changes.refreshInterval.newValue;
       if (autoRefreshTimer) clearInterval(autoRefreshTimer);
       autoRefreshTimer = scheduleAutoRefresh(prefs.refreshInterval, triggerNetworkCheck);
+    }
+    if (changes.sceneMode && _scene) {
+      const newMode = changes.sceneMode.newValue ?? 'toon';
+      prefs.sceneMode = newMode;
+      (async () => {
+        disposeSukuna(sukunaRefs);
+        sukunaRefs = await buildSukuna(_scene, newMode);
+      })();
     }
   });
 }

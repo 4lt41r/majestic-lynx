@@ -10,12 +10,12 @@ export const DEFAULTS = {
   notes: '',
   privacyDismissed: false,
   quickLinks: [
-    { label: 'GitHub',   url: 'https://github.com',           icon: '🐙' },
-    { label: 'Gmail',    url: 'https://mail.google.com',      icon: '📧' },
-    { label: 'YouTube',  url: 'https://youtube.com',          icon: '▶' },
-    { label: 'Maps',     url: 'https://maps.google.com',      icon: '🗺' },
-    { label: 'Drive',    url: 'https://drive.google.com',     icon: '💾' },
-    { label: 'Reddit',   url: 'https://reddit.com',           icon: '🤖' },
+    { label: 'GitHub',  url: 'https://github.com',          icon: '🐙' },
+    { label: 'Gmail',   url: 'https://mail.google.com',     icon: '📧' },
+    { label: 'YouTube', url: 'https://youtube.com',         icon: '▶'  },
+    { label: 'Maps',    url: 'https://maps.google.com',     icon: '🗺' },
+    { label: 'Drive',   url: 'https://drive.google.com',    icon: '💾' },
+    { label: 'Reddit',  url: 'https://reddit.com',          icon: '🤖' },
   ],
   widgets: {
     clock: true, network: true, quickLinks: true,
@@ -23,6 +23,7 @@ export const DEFAULTS = {
   },
   weatherCity:  '',
   weatherUnits: 'metric',
+  sceneMode:    'toon',
 };
 
 export const SEARCH_ENGINES = {
@@ -32,6 +33,7 @@ export const SEARCH_ENGINES = {
 };
 
 export const PARTICLE_COUNTS = { off: 0, low: 20, medium: 50, high: 100 };
+export const SCENE_MODES      = ['toon', 'billboard', 'gltf'];
 
 export const PING_URL             = 'https://www.google.com/generate_204';
 export const DEFAULT_DOWNLOAD_URL = 'https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js';

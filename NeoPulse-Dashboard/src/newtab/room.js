@@ -2,6 +2,8 @@ import {
   PlaneGeometry, BoxGeometry, CylinderGeometry, SphereGeometry,
   Mesh, MeshStandardMaterial, ShaderMaterial, CanvasTexture,
   DoubleSide, RepeatWrapping,
+  FogExp2, PointLight,
+  Points, PointsMaterial, BufferGeometry, Float32BufferAttribute,
 } from '../assets/three.module.min.js';
 
 // ── Seeded PRNG — deterministic placement every load ───────────
@@ -89,8 +91,12 @@ const BLOOD_FRAG = `
 
 // Exported so app.js can increment time uniform each frame
 export const bloodUniforms = { time: { value: 0 } };
+const torchLights = [];
+let   _dustMesh   = null;
 
 export function buildRoom(scene) {
+  scene.fog = new FogExp2(0x0a0000, 0.018);
+
   // ── Floor ──
   const floorTex = new CanvasTexture(makeFloorCanvas());
   floorTex.wrapS = floorTex.wrapT = RepeatWrapping;
@@ -123,6 +129,34 @@ export function buildRoom(scene) {
   backWall.receiveShadow = true;
   scene.add(backWall);
 
+  // ── Wall torches ──
+  const torchPositions = [
+    { x: -8.6, z: -3 },
+    { x: -8.6, z:  3 },
+    { x:  8.6, z: -3 },
+    { x:  8.6, z:  3 },
+  ];
+  const bracketMat = new MeshStandardMaterial({ color: 0x444444, roughness: 0.7, metalness: 0.5 });
+  const flameMat   = new MeshStandardMaterial({ color: 0xff6600, emissive: 0xff3300, emissiveIntensity: 2.0, roughness: 1 });
+
+  torchPositions.forEach(({ x, z }) => {
+    const bracket = new Mesh(new CylinderGeometry(0.05, 0.05, 0.4, 8), bracketMat);
+    bracket.position.set(x, 4.5, z);
+    bracket.rotation.z = Math.PI / 2;
+    scene.add(bracket);
+
+    const flame = new Mesh(new SphereGeometry(0.12, 8, 8), flameMat);
+    flame.position.set(x, 4.8, z);
+    scene.add(flame);
+
+    const light = new PointLight(0xff4400, 2.5, 10, 2);
+    light.position.set(x, 4.9, z);
+    light.castShadow = false;
+    scene.add(light);
+
+    torchLights.push({ light, base: 2.5 });
+  });
+
   // ── Blood pool ──
   const bloodMesh = new Mesh(
     new PlaneGeometry(12, 12),
@@ -149,6 +183,26 @@ export function buildRoom(scene) {
     drop.position.set(Math.cos(angle) * radius, 0.005, -1 + Math.sin(angle) * radius);
     scene.add(drop);
   }
+
+  // ── Dust / ember particles ──
+  const PARTICLE_COUNT = 120;
+  const positions = new Float32Array(PARTICLE_COUNT * 3);
+  const rand2 = mulberry32(777);
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    positions[i * 3]     = (rand2() - 0.5) * 18;
+    positions[i * 3 + 1] = rand2() * 8;
+    positions[i * 3 + 2] = (rand2() - 0.5) * 16;
+  }
+  const dustGeo = new BufferGeometry();
+  dustGeo.setAttribute('position', new Float32BufferAttribute(positions, 3));
+  _dustMesh = new Points(dustGeo, new PointsMaterial({
+    color: 0xff5500,
+    size: 0.04,
+    transparent: true,
+    opacity: 0.45,
+    depthWrite: false,
+  }));
+  scene.add(_dustMesh);
 }
 
 export function buildSkeletonPile(scene) {
@@ -202,5 +256,21 @@ export function buildSkeletonPile(scene) {
     const beam = new Mesh(new BoxGeometry(1.8, 0.12, 0.12), darkMat);
     beam.position.set(0, 2.2 + b * 0.8, -4);
     scene.add(beam);
+  }
+}
+
+export function animateRoom(elapsed) {
+  torchLights.forEach(({ light, base }, i) => {
+    light.intensity = base + Math.sin(elapsed * 7.3 + i * 2.1) * 0.6
+                            + Math.sin(elapsed * 13.1 + i * 1.4) * 0.3;
+  });
+
+  if (_dustMesh) {
+    _dustMesh.rotation.y = elapsed * 0.03;
+    const pos = _dustMesh.geometry.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      pos.setY(i, pos.getY(i) + Math.sin(elapsed * 0.4 + i * 0.7) * 0.0002);
+    }
+    pos.needsUpdate = true;
   }
 }
