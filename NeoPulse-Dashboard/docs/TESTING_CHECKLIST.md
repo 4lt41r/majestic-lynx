@@ -69,10 +69,12 @@ Complete this checklist top-to-bottom after any significant change or before sha
 - [ ] "Last tested: Just now" label appears after the test
 - [ ] Click **Run Speed Test** button — button shows "Testing…" during run
 - [ ] Values update after manual test completes
-- [ ] Upload card shows "N/A" with "browser limitation" label (not a broken state)
-- [ ] IP card shows "—" (no external IP API by default)
+- [ ] Upload speed value appears with "Mbps approx" label after test completes (~1–2 extra seconds)
+- [ ] IP card shows your public IPv4 address
+- [ ] ISP label below IP card shows your internet provider name
+- [ ] Animated bar fills under upload card
 - [ ] Disconnect internet → all metric cards show "—"
-- [ ] Reconnect → next auto-run or manual test restores values
+- [ ] Reconnect → next auto-run or manual test restores all values including upload and IP
 
 ---
 

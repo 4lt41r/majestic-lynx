@@ -516,6 +516,88 @@ docs/PROJECT_LOG.md        (this entry)
 
 ---
 
+## Phase 13 — Feature Expansion: Bookmarks, Weather, Upload, IP, Opera GX Sidebar
+**Date:** 2026-05-29
+**Status:** Complete
+
+### What was added / changed
+
+#### Bookmarks widget (was: empty placeholder)
+- Added `bookmarks` permission to manifest
+- `initBookmarks()` in `app.js` with two views:
+  - **Recent** — `chrome.bookmarks.getRecent(30)`, sorted by last-clicked timestamp (stored locally in `bookmarkClicks` storage key) with `dateAdded` as fallback
+  - **By Domain** — `chrome.bookmarks.getTree()` flattened and grouped by `hostname`, groups sorted by most-recently-interacted item
+- Domain groups collapse/expand on click
+- Favicons via `chrome.runtime.getURL('/_favicon/')` built-in endpoint — no external CDN
+- Click tracking stored in `chrome.storage.local` as `{ url: timestamp }` — enables visited-order sorting without the `history` permission
+
+#### Weather widget (was: static placeholder)
+- Switched from OpenWeatherMap (requires API key) to **wttr.in** (free, no key)
+- Only city name required — configured in Settings → Weather
+- Weather code integer mapped to emoji icon via lookup table (44 codes)
+- Renders: icon, temperature, "feels like", humidity, location name
+- Supports Celsius/Fahrenheit toggle
+
+#### Upload speed (was: hardcoded N/A)
+- `estimateUploadSpeed()` in `network.js`
+- POSTs 150 KB of `crypto.getRandomValues()` bytes to `httpbin.org/post` (open CORS)
+- Times from POST start to response headers received — dominated by upload duration
+- Previous approach (`speed.cloudflare.com/__up`) was blocked by CORS from extension origin
+
+#### Public IP + ISP (was: hardcoded "—")
+- `fetchPublicIp()` in `network.js`
+- `GET https://ipwho.is/` — free, HTTPS, no API key, returns `{ ip, isp, success }`
+- Previous approach (`ip-api.com`) only allows HTTPS on paid plans — failed silently
+- All four network checks now run in parallel via `Promise.all`
+
+#### Opera GX-style side panel (was: duplicate of new tab)
+- Complete redesign of `sidepanel.html/css/js`
+- 4-tab navigation: **◉ Home** | **⊞ Bookmarks** | **☁ Weather** | **≡ Notes**
+- Home tab: latency, download, upload, IP stats + 6 quick links (3×2 grid)
+- Bookmarks tab: full Recent/By Domain browser — accessible on any page
+- Weather tab: live wttr.in card
+- Notes tab: full textarea synced with dashboard
+- Tabs load content lazily (first activation only)
+- `openPanelOnActionClick: true` in service worker — toolbar icon opens panel on any tab
+
+#### CSP and host permissions
+- Replaced old domains with working alternatives:
+
+| Old (broken) | New (working) | Reason |
+|---|---|---|
+| `speed.cloudflare.com/__up` | `httpbin.org/post` | Cloudflare blocks non-cloudflare.com origins |
+| `ip-api.com` | `ipwho.is` | ip-api.com HTTPS requires paid plan |
+| `api.openweathermap.org` | `wttr.in` | OpenWeatherMap requires API key |
+
+- Fixed `options.html` CSP missing `img-src 'self' data:` — was blocking the SVG dropdown arrow in options.css
+
+### Files changed
+```
+manifest.json                         (bookmarks + tabs permissions; new host_permissions + CSP)
+src/shared/constants.js               (UPLOAD_URL, IP_API_URL, WTTR_BASE_URL; weatherCity/Units defaults)
+src/shared/network.js                 (estimateUploadSpeed, fetchPublicIp; runNetworkCheck returns 6 fields)
+src/background/service-worker.js      (openPanelOnActionClick: true)
+src/newtab/index.html                 (upload card bar; bookmarks tab UI; updated CSP)
+src/newtab/app.js                     (initBookmarks, initWeather with wttr.in; upload+IP in updateNetworkUI)
+src/newtab/styles.css                 (bookmark group/item/tab styles; weather card styles)
+src/options/options.html              (Weather section — city + units, no API key field; img-src CSP fix)
+src/options/options.css               (ctrl--text input style; settings-link-text)
+src/options/options.js                (weatherCity + weatherUnits read/write)
+src/sidepanel/sidepanel.html          (full 4-tab redesign)
+src/sidepanel/sidepanel.css           (full rewrite — tab nav, stat cards, bookmark browser, weather, notes)
+src/sidepanel/sidepanel.js            (full rewrite — tab switching, lazy-load, all tab content)
+```
+
+### How to test
+1. Reload extension at `chrome://extensions` (required after manifest change)
+2. **Upload + IP:** Open new tab → Run Speed Test → Upload and Public IP cards should populate
+3. **Bookmarks:** Settings → Widgets → enable Bookmarks → open new tab → Recent and By Domain tabs work
+4. **Weather:** Settings → Weather → enter city (e.g. `London`) → Settings → Widgets → enable Weather → open new tab → live weather card appears
+5. **Sidebar from any tab:** Navigate to any website → click NeoPulse toolbar icon → side panel opens with 4 tabs
+6. **Sidebar tabs:** Click each tab — Home shows network stats, Bookmarks browse works, Weather shows card, Notes syncs with dashboard
+
+---
+
 ## Project Complete ✓
 
 All 12 phases implemented. 24 files created. Extension is ready to load and test in Chrome.
