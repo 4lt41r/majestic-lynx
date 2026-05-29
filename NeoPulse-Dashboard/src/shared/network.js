@@ -1,12 +1,12 @@
-import { PING_URL, DEFAULT_DOWNLOAD_URL, UPLOAD_URL, IP_API_URL } from './constants.js';
+import {
+  PING_URL, DEFAULT_DOWNLOAD_URL, UPLOAD_URL, UPLOAD_TIMEOUT_MS,
+  IP_API_URL, IP_FALLBACK_URL,
+} from './constants.js';
 
-// ── Online status ──────────────────────────────────────────────
 export function checkOnlineStatus() {
   return navigator.onLine;
 }
 
-// ── Latency ping ───────────────────────────────────────────────
-// no-cors so no CORS error; response is opaque but timing is real.
 export async function measureLatency(url = PING_URL) {
   try {
     const start = performance.now();
@@ -17,8 +17,6 @@ export async function measureLatency(url = PING_URL) {
   }
 }
 
-// ── Download speed estimate ────────────────────────────────────
-// jsdelivr sends CORS headers so arrayBuffer() can be read.
 export async function estimateDownloadSpeed(url = DEFAULT_DOWNLOAD_URL) {
   try {
     const start  = performance.now();
@@ -33,13 +31,11 @@ export async function estimateDownloadSpeed(url = DEFAULT_DOWNLOAD_URL) {
   }
 }
 
-// ── Upload speed estimate ──────────────────────────────────────
-// POSTs 150 KB of random bytes to httpbin.org (open CORS, free) and times
-// until the server acknowledges with response headers.
-// No user data sent — payload is crypto-random binary.
 export async function estimateUploadSpeed() {
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
   try {
-    const size    = 150 * 1024; // 150 KB
+    const size    = 150 * 1024;
     const payload = new Uint8Array(size);
     crypto.getRandomValues(payload);
     const start   = performance.now();
@@ -47,34 +43,45 @@ export async function estimateUploadSpeed() {
       method:  'POST',
       body:    payload,
       cache:   'no-store',
+      signal:  controller.signal,
       headers: { 'Content-Type': 'application/octet-stream' },
     });
-    // httpbin returns 200; any 2xx is a success — don't bail on non-200
     if (res.status < 200 || res.status >= 300) return null;
     const elapsed = (performance.now() - start) / 1000;
     if (elapsed <= 0) return null;
     return Math.round(((size * 8) / elapsed / 1_000_000) * 10) / 10;
-  } catch {
+  } catch (err) {
+    if (err.name === 'AbortError') console.warn('[NeoPulse] upload timeout');
     return null;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
-// ── Public IP + ISP lookup ─────────────────────────────────────
-// ipwho.is — free, HTTPS, no API key. Returns { ip, isp, ... }.
 export async function fetchPublicIp() {
+  // Primary: ipwho.is (returns ip + isp)
   try {
     const res  = await fetch(IP_API_URL, { cache: 'no-store' });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data.success && data.success !== undefined) return null;
-    return { ip: data.ip ?? null, isp: data.isp ?? null };
-  } catch {
-    return null;
-  }
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success !== false && data.ip) {
+        return { ip: data.ip, isp: data.isp ?? null };
+      }
+    }
+  } catch { /* fall through */ }
+
+  // Fallback: api.ipify.org (IP only, no ISP)
+  try {
+    const res  = await fetch(IP_FALLBACK_URL, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.ip) return { ip: data.ip, isp: null };
+    }
+  } catch { /* both failed */ }
+
+  return null;
 }
 
-// ── Full network check ─────────────────────────────────────────
-// Runs latency, download, upload, and IP lookup in parallel.
 export async function runNetworkCheck({
   pingUrl     = PING_URL,
   downloadUrl = DEFAULT_DOWNLOAD_URL,
@@ -107,7 +114,6 @@ export async function runNetworkCheck({
   };
 }
 
-// ── Auto-refresh scheduler ─────────────────────────────────────
 export function scheduleAutoRefresh(intervalSec, callback) {
   return setInterval(callback, Math.max(60, intervalSec) * 1000);
 }
