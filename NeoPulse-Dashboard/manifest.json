@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "NeoPulse Dashboard",
+  "version": "1.0.0",
+  "description": "A futuristic cyberpunk New Tab dashboard with live network stats, quick links, notes, and glassmorphism UI.",
+
+  "icons": {
+    "16":  "src/assets/icons/icon16.png",
+    "32":  "src/assets/icons/icon32.png",
+    "48":  "src/assets/icons/icon48.png",
+    "128": "src/assets/icons/icon128.png"
+  },
+
+  "chrome_url_overrides": {
+    "newtab": "src/newtab/index.html"
+  },
+
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+
+  "side_panel": {
+    "default_path": "src/sidepanel/sidepanel.html"
+  },
+
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
+  },
+
+  "permissions": [
+    "storage",
+    "sidePanel"
+  ],
+
+  "host_permissions": [
+    "https://www.google.com/generate_204",
+    "https://cdn.jsdelivr.net/*"
+  ],
+
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://www.google.com https://cdn.jsdelivr.net; img-src 'self' data:; script-src 'self'"
+  },
+
+  "action": {
+    "default_title": "NeoPulse Dashboard",
+    "default_icon": {
+      "16":  "src/assets/icons/icon16.png",
+      "32":  "src/assets/icons/icon32.png",
+      "48":  "src/assets/icons/icon48.png",
+      "128": "src/assets/icons/icon128.png"
+    }
+  }
+}

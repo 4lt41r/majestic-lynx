@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://www.google.com https://cdn.jsdelivr.net; img-src 'self' data:; script-src 'self'" />
+  <title>NeoPulse Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Layered background effects -->
+  <canvas id="particles-canvas" aria-hidden="true"></canvas>
+  <div id="grid-bg" aria-hidden="true"></div>
+
+  <!-- First-run privacy notice (hidden after dismiss) -->
+  <div id="privacy-notice" class="privacy-notice" hidden>
+    <div class="privacy-notice__content">
+      <span class="privacy-notice__icon">🔒</span>
+      <p>NeoPulse stores your notes and settings <strong>locally on this device only</strong>.
+         No data is sent to any server. Speed tests make anonymous requests to measure latency.</p>
+      <button id="privacy-dismiss" class="btn btn--ghost">Got it</button>
+    </div>
+  </div>
+
+  <!-- Main dashboard wrapper -->
+  <div id="dashboard">
+
+    <!-- ── Header: Clock + Date + Status ── -->
+    <header id="header" class="glass-card header">
+      <div class="header__clock-group">
+        <div id="clock" class="clock" aria-live="polite" aria-label="Current time">00:00:00</div>
+        <div id="date-display" class="date-display" aria-live="polite">Loading…</div>
+      </div>
+      <div class="header__status">
+        <span id="network-status-dot" class="status-dot status-dot--unknown" title="Network status"></span>
+        <span id="network-status-label" class="status-label">Checking…</span>
+      </div>
+    </header>
+
+    <!-- ── Search Bar ── -->
+    <section id="search-bar" class="search-section" aria-label="Search">
+      <form id="search-form" class="search-form" autocomplete="off">
+        <div class="search-form__inner">
+          <span class="search-form__icon" aria-hidden="true">⌕</span>
+          <input
+            id="search-input"
+            type="search"
+            class="search-form__input"
+            placeholder="Search the web…"
+            aria-label="Search query"
+            spellcheck="false"
+          />
+          <select id="search-engine-select" class="search-form__engine" aria-label="Search engine">
+            <option value="google">Google</option>
+            <option value="bing">Bing</option>
+            <option value="duckduckgo">DuckDuckGo</option>
+          </select>
+        </div>
+      </form>
+    </section>
+
+    <!-- ── Network Panel ── -->
+    <section id="network-panel" class="network-panel" aria-label="Network statistics">
+      <div class="network-panel__grid">
+
+        <div class="glass-card metric-card" id="card-latency">
+          <div class="metric-card__label">Latency</div>
+          <div class="metric-card__value" id="metric-latency">—</div>
+          <div class="metric-card__unit">ms <span class="approx-tag">approx</span></div>
+          <div class="metric-card__bar"><div class="metric-card__bar-fill" id="bar-latency"></div></div>
+        </div>
+
+        <div class="glass-card metric-card" id="card-download">
+          <div class="metric-card__label">Download</div>
+          <div class="metric-card__value" id="metric-download">—</div>
+          <div class="metric-card__unit">Mbps <span class="approx-tag">approx</span></div>
+          <div class="metric-card__bar"><div class="metric-card__bar-fill" id="bar-download"></div></div>
+        </div>
+
+        <div class="glass-card metric-card" id="card-upload">
+          <div class="metric-card__label">Upload</div>
+          <div class="metric-card__value" id="metric-upload">N/A</div>
+          <div class="metric-card__unit">browser limitation</div>
+        </div>
+
+        <div class="glass-card metric-card" id="card-ip">
+          <div class="metric-card__label">Public IP</div>
+          <div class="metric-card__value metric-card__value--sm" id="metric-ip">—</div>
+          <div class="metric-card__unit" id="metric-isp">ISP: —</div>
+        </div>
+
+      </div>
+
+      <div class="network-panel__actions">
+        <button id="run-speed-test" class="btn btn--neon" type="button">Run Speed Test</button>
+        <span id="last-tested" class="last-tested">Not tested yet</span>
+      </div>
+    </section>
+
+    <!-- ── Speed History Graph ── -->
+    <section id="speed-graph-section" class="glass-card graph-section" aria-label="Speed history">
+      <div class="graph-section__header">
+        <span class="section-title">Speed History</span>
+        <span class="graph-section__legend">
+          <span class="legend-dot legend-dot--cyan"></span> Download (Mbps)
+        </span>
+      </div>
+      <canvas id="speed-graph" class="speed-graph-canvas" aria-label="Speed history graph" role="img"></canvas>
+    </section>
+
+    <!-- ── Quick Links ── -->
+    <section id="quick-links" class="quick-links-section" aria-label="Quick links">
+      <div class="section-title">Quick Links</div>
+      <div id="quick-links-grid" class="quick-links-grid">
+        <!-- Tiles injected by app.js -->
+      </div>
+    </section>
+
+    <!-- ── Bookmarks (hidden by default, enabled via settings) ── -->
+    <section id="bookmarks" class="glass-card bookmarks-section" hidden aria-label="Bookmarks">
+      <div class="section-title">Bookmarks</div>
+      <div id="bookmarks-list" class="bookmarks-list">
+        <!-- Items injected by app.js when bookmarks permission enabled -->
+      </div>
+    </section>
+
+    <!-- ── Notes Widget ── -->
+    <section id="notes-section" class="glass-card notes-section" aria-label="Notes">
+      <div class="section-title">Notes
+        <span id="notes-saved-indicator" class="saved-indicator" aria-live="polite"></span>
+      </div>
+      <textarea
+        id="notes-input"
+        class="notes-textarea"
+        placeholder="Type your notes here… they auto-save."
+        aria-label="Personal notes"
+        spellcheck="true"
+      ></textarea>
+    </section>
+
+    <!-- ── Weather Placeholder ── -->
+    <section id="weather-placeholder" class="glass-card weather-section" aria-label="Weather">
+      <div class="section-title">Weather</div>
+      <div class="weather-placeholder__content">
+        <span class="weather-placeholder__icon" aria-hidden="true">🌐</span>
+        <p class="weather-placeholder__text">
+          Weather coming soon — add your API key in Settings to enable live data.
+        </p>
+      </div>
+    </section>
+
+  </div><!-- /#dashboard -->
+
+  <!-- ── Footer Controls ── -->
+  <footer id="footer" class="footer">
+    <button id="btn-settings" class="btn btn--icon" type="button" title="Open Settings" aria-label="Open Settings">
+      <span aria-hidden="true">⚙</span>
+    </button>
+    <button id="btn-sidepanel" class="btn btn--icon" type="button" title="Open Side Panel" aria-label="Open Side Panel">
+      <span aria-hidden="true">◫</span>
+    </button>
+    <span class="footer__version" id="footer-version"></span>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

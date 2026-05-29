@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="neon-blue" data-animation="medium">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://www.google.com https://cdn.jsdelivr.net; script-src 'self'" />
+  <title>NeoPulse Panel</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+
+  <div id="grid-bg" aria-hidden="true"></div>
+
+  <div class="panel">
+
+    <!-- ── Header ── -->
+    <header class="panel-header">
+      <span class="panel-header__logo" aria-hidden="true">◈</span>
+      <span class="panel-header__title">NeoPulse</span>
+      <span id="network-status-dot" class="status-dot status-dot--unknown" title="Network status"></span>
+      <span id="network-status-label" class="status-label">Checking…</span>
+    </header>
+
+    <!-- ── Network stats ── -->
+    <section class="panel-section" aria-label="Network statistics">
+      <div class="section-title">Network</div>
+
+      <div class="stat-grid">
+
+        <div class="stat-card glass-card">
+          <div class="stat-card__label">Latency</div>
+          <div class="stat-card__value" id="metric-latency">—</div>
+          <div class="stat-card__unit">ms <span class="approx-tag">approx</span></div>
+        </div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-card__label">Download</div>
+          <div class="stat-card__value" id="metric-download">—</div>
+          <div class="stat-card__unit">Mbps <span class="approx-tag">approx</span></div>
+        </div>
+
+      </div>
+
+      <div class="stat-actions">
+        <button id="run-speed-test" class="btn btn--neon" type="button">Run Test</button>
+        <span id="last-tested" class="last-tested">Not tested</span>
+      </div>
+    </section>
+
+    <!-- ── Quick links ── -->
+    <section class="panel-section" aria-label="Quick links">
+      <div class="section-title">Quick Links</div>
+      <div id="quick-links-grid" class="quick-links-grid">
+        <!-- Populated by sidepanel.js -->
+      </div>
+    </section>
+
+    <!-- ── Notes ── -->
+    <section class="panel-section panel-section--grow" aria-label="Notes">
+      <div class="section-title">
+        Notes
+        <span id="notes-saved-indicator" class="saved-indicator" aria-live="polite"></span>
+      </div>
+      <textarea
+        id="notes-input"
+        class="notes-textarea"
+        placeholder="Your notes sync with the dashboard…"
+        aria-label="Personal notes"
+        spellcheck="true"
+      ></textarea>
+    </section>
+
+    <!-- ── Footer ── -->
+    <footer class="panel-footer">
+      <button id="btn-settings" class="btn btn--ghost btn--sm" type="button">⚙ Settings</button>
+      <span id="footer-version" class="footer-version"></span>
+    </footer>
+
+  </div><!-- /.panel -->
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

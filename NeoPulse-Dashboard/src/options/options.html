@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="neon-blue" data-animation="medium">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'" />
+  <title>NeoPulse — Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+
+  <div id="grid-bg" aria-hidden="true"></div>
+
+  <div class="page-wrapper">
+
+    <!-- ── Header ── -->
+    <header class="page-header">
+      <div class="page-header__logo">
+        <span class="page-header__glyph" aria-hidden="true">◈</span>
+        <span class="page-header__title">NeoPulse <span class="page-header__sub">Settings</span></span>
+      </div>
+      <a href="#" id="open-dashboard" class="btn btn--ghost" title="Return to dashboard">
+        ← New Tab
+      </a>
+    </header>
+
+    <!-- ── Save banner ── -->
+    <div id="save-banner" class="save-banner" hidden aria-live="polite">
+      <span class="save-banner__icon" aria-hidden="true">✓</span>
+      Settings saved
+    </div>
+
+    <form id="settings-form" class="settings-form" autocomplete="off" novalidate>
+
+      <!-- ── Section: Appearance ── -->
+      <section class="settings-section glass-card">
+        <h2 class="settings-section__title">
+          <span aria-hidden="true">◆</span> Appearance
+        </h2>
+
+        <div class="settings-row">
+          <label class="settings-label" for="theme">
+            Theme colour
+            <span class="settings-hint">Changes the accent neon colour across the dashboard</span>
+          </label>
+          <select id="theme" name="theme" class="ctrl ctrl--select">
+            <option value="neon-blue">Neon Blue</option>
+            <option value="neon-purple">Neon Purple</option>
+            <option value="neon-green">Neon Green</option>
+          </select>
+        </div>
+
+        <div class="settings-row">
+          <label class="settings-label" for="animationIntensity">
+            Animation intensity
+            <span class="settings-hint">Reduce for lower CPU usage; off disables all animations</span>
+          </label>
+          <select id="animationIntensity" name="animationIntensity" class="ctrl ctrl--select">
+            <option value="off">Off</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium (default)</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <div class="settings-row">
+          <label class="settings-label" for="particlesEnabled">
+            Floating particles
+            <span class="settings-hint">Animated background dots — disable to reduce GPU usage</span>
+          </label>
+          <label class="toggle" aria-label="Enable particles">
+            <input type="checkbox" id="particlesEnabled" name="particlesEnabled" />
+            <span class="toggle__track"><span class="toggle__thumb"></span></span>
+          </label>
+        </div>
+
+      </section>
+
+      <!-- ── Section: Widgets ── -->
+      <section class="settings-section glass-card">
+        <h2 class="settings-section__title">
+          <span aria-hidden="true">◆</span> Widgets
+        </h2>
+        <p class="settings-section__desc">Choose which panels appear on the dashboard.</p>
+
+        <div class="widget-grid">
+
+          <div class="widget-toggle-row">
+            <label class="toggle" aria-label="Show clock widget">
+              <input type="checkbox" id="widget-clock" name="widget-clock" />
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </label>
+            <span class="widget-toggle-row__label">Clock &amp; Date</span>
+          </div>
+
+          <div class="widget-toggle-row">
+            <label class="toggle" aria-label="Show network widget">
+              <input type="checkbox" id="widget-network" name="widget-network" />
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </label>
+            <span class="widget-toggle-row__label">Network Speed</span>
+          </div>
+
+          <div class="widget-toggle-row">
+            <label class="toggle" aria-label="Show quick links">
+              <input type="checkbox" id="widget-quickLinks" name="widget-quickLinks" />
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </label>
+            <span class="widget-toggle-row__label">Quick Links</span>
+          </div>
+
+          <div class="widget-toggle-row">
+            <label class="toggle" aria-label="Show notes widget">
+              <input type="checkbox" id="widget-notes" name="widget-notes" />
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </label>
+            <span class="widget-toggle-row__label">Notes</span>
+          </div>
+
+          <div class="widget-toggle-row">
+            <label class="toggle" aria-label="Show bookmarks widget">
+              <input type="checkbox" id="widget-bookmarks" name="widget-bookmarks" />
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </label>
+            <span class="widget-toggle-row__label">Bookmarks</span>
+          </div>
+
+          <div class="widget-toggle-row">
+            <label class="toggle" aria-label="Show weather placeholder">
+              <input type="checkbox" id="widget-weather" name="widget-weather" />
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </label>
+            <span class="widget-toggle-row__label">Weather</span>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── Section: Search ── -->
+      <section class="settings-section glass-card">
+        <h2 class="settings-section__title">
+          <span aria-hidden="true">◆</span> Search
+        </h2>
+
+        <div class="settings-row">
+          <label class="settings-label" for="searchEngine">
+            Default search engine
+            <span class="settings-hint">Used when you press Enter in the search bar</span>
+          </label>
+          <select id="searchEngine" name="searchEngine" class="ctrl ctrl--select">
+            <option value="google">Google</option>
+            <option value="bing">Bing</option>
+            <option value="duckduckgo">DuckDuckGo</option>
+          </select>
+        </div>
+
+      </section>
+
+      <!-- ── Section: Network ── -->
+      <section class="settings-section glass-card">
+        <h2 class="settings-section__title">
+          <span aria-hidden="true">◆</span> Network
+        </h2>
+
+        <div class="settings-row">
+          <label class="settings-label" for="refreshInterval">
+            Auto-refresh interval
+            <span class="settings-hint">How often the speed test runs automatically (minimum 60 s)</span>
+          </label>
+          <div class="range-group">
+            <input
+              type="range"
+              id="refreshInterval"
+              name="refreshInterval"
+              min="60"
+              max="3600"
+              step="60"
+              class="ctrl ctrl--range"
+            />
+            <output id="refreshInterval-display" class="range-group__output">5 min</output>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <label class="settings-label" for="soundsEnabled">
+            Sound effects
+            <span class="settings-hint">Subtle UI sounds on interactions (none implemented yet)</span>
+          </label>
+          <label class="toggle" aria-label="Enable sounds">
+            <input type="checkbox" id="soundsEnabled" name="soundsEnabled" />
+            <span class="toggle__track"><span class="toggle__thumb"></span></span>
+          </label>
+        </div>
+
+      </section>
+
+      <!-- ── Section: Reset ── -->
+      <section class="settings-section settings-section--danger glass-card">
+        <h2 class="settings-section__title settings-section__title--danger">
+          <span aria-hidden="true">⚠</span> Reset
+        </h2>
+        <p class="settings-section__desc">
+          Resets all settings, notes, and quick links to factory defaults. This cannot be undone.
+        </p>
+        <button type="button" id="btn-reset" class="btn btn--danger">
+          Reset all settings
+        </button>
+      </section>
+
+    </form>
+
+    <footer class="page-footer">
+      <span id="footer-version" class="page-footer__version"></span>
+      <span class="page-footer__privacy">
+        All settings stored locally · No data leaves your device
+      </span>
+    </footer>
+
+  </div><!-- /.page-wrapper -->
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>
