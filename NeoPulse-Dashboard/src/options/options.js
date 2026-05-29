@@ -42,6 +42,10 @@ function populateForm(prefs) {
   setCheck('widget-notes',         w.notes);
   setCheck('widget-bookmarks',     w.bookmarks);
   setCheck('widget-weather',       w.weather);
+
+  // Weather
+  setText_('weatherCity',   prefs.weatherCity  ?? '');
+  setSelect('weatherUnits', prefs.weatherUnits ?? 'metric');
 }
 
 // ── Bind all controls to auto-save ────────────────────────────
@@ -66,6 +70,11 @@ function bindControls() {
   ].forEach(id => {
     document.getElementById(id)?.addEventListener('change', save);
   });
+
+  // Weather text input
+  document.getElementById('weatherCity')?.addEventListener('input', save);
+
+  document.getElementById('weatherUnits')?.addEventListener('change', save);
 
   // Range slider — update display immediately, save debounced
   const rangeEl   = document.getElementById('refreshInterval');
@@ -93,6 +102,8 @@ async function saveAll() {
       bookmarks:  getChecked('widget-bookmarks'),
       weather:    getChecked('widget-weather'),
     },
+    weatherCity:   getValue('weatherCity').trim(),
+    weatherUnits:  getValue('weatherUnits'),
   };
 
   await setPrefs(prefs);
@@ -155,6 +166,11 @@ function getValue(id) {
 
 function getChecked(id) {
   return document.getElementById(id)?.checked ?? false;
+}
+
+function setText_(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = value;
 }
 
 function formatInterval(seconds) {

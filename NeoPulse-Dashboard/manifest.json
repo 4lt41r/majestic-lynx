@@ -31,16 +31,21 @@
 
   "permissions": [
     "storage",
-    "sidePanel"
+    "sidePanel",
+    "bookmarks",
+    "tabs"
   ],
 
   "host_permissions": [
     "https://www.google.com/generate_204",
-    "https://cdn.jsdelivr.net/*"
+    "https://cdn.jsdelivr.net/*",
+    "https://httpbin.org/*",
+    "https://ipwho.is/*",
+    "https://wttr.in/*"
   ],
 
   "content_security_policy": {
-    "extension_pages": "default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://www.google.com https://cdn.jsdelivr.net; img-src 'self' data:; script-src 'self'"
+    "extension_pages": "default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://www.google.com https://cdn.jsdelivr.net https://httpbin.org https://ipwho.is https://wttr.in; img-src 'self' data:; script-src 'self'"
   },
 
   "action": {

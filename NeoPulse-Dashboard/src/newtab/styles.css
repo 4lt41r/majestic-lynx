@@ -838,7 +838,217 @@ html[data-animation="high"] .glass-card:hover {
   animation: value-update 0.6s var(--ease) both;
 }
 
-/* ── Step 25: Utility ────────────────────────────────────────── */
+/* ── Step 25: Bookmarks Widget ───────────────────────────────── */
+.bookmarks-section {
+  padding: var(--gap);
+}
+
+.bookmarks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bm-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.bm-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent-dim);
+  font: 11px var(--font-mono);
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background var(--dur), color var(--dur);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.bm-tab-btn--active,
+.bm-tab-btn:hover {
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+.bookmarks-list {
+  max-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-border) transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: rgba(255,255,255,0.75);
+  font: 12px var(--font-ui);
+  transition: background var(--dur), color var(--dur);
+  min-width: 0;
+}
+
+.bm-item:hover {
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+.bm-item__label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.bm-favicon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+.bm-group {
+  margin-bottom: 4px;
+}
+
+.bm-group__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  color: var(--accent-dim);
+  font: 12px var(--font-mono);
+  letter-spacing: 0.04em;
+  transition: background var(--dur), color var(--dur);
+  text-align: left;
+}
+
+.bm-group__header:hover {
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+.bm-group__host {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bm-group__count {
+  font-size: 10px;
+  padding: 1px 6px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 10px;
+  opacity: 0.7;
+}
+
+.bm-group__chevron {
+  font-size: 14px;
+  transition: transform var(--dur);
+  flex-shrink: 0;
+}
+
+.bm-group__body {
+  display: none;
+  padding-left: 16px;
+}
+
+.bm-group--open .bm-group__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bm-empty,
+.bm-loading {
+  color: var(--accent-dim);
+  font: 12px var(--font-mono);
+  text-align: center;
+  padding: 24px 0;
+  opacity: 0.7;
+}
+
+/* ── Step 26: Weather Widget ─────────────────────────────────── */
+.weather-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 8px 4px;
+  flex-wrap: wrap;
+}
+
+.weather-card__main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.weather-card__icon {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.weather-card__temp {
+  font: 700 2rem var(--font-hud);
+  color: var(--accent);
+  text-shadow: 0 0 16px var(--accent-glow);
+  letter-spacing: -0.02em;
+}
+
+.weather-card__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.weather-card__desc {
+  font: 13px var(--font-ui);
+  color: rgba(255,255,255,0.85);
+}
+
+.weather-card__meta {
+  font: 11px var(--font-mono);
+  color: var(--accent-dim);
+  letter-spacing: 0.03em;
+}
+
+.weather-location {
+  font: 12px var(--font-mono);
+  color: var(--accent-dim);
+  letter-spacing: 0.05em;
+}
+
+.weather-loading,
+.weather-error {
+  font: 12px var(--font-mono);
+  color: var(--accent-dim);
+  padding: 16px 8px;
+  opacity: 0.8;
+}
+
+.weather-error { color: var(--neon-red); }
+
+/* ── Step 27: Utility ────────────────────────────────────────── */
 [hidden] { display: none !important; }
 
 .fade-in {

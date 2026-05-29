@@ -241,6 +241,33 @@ html, body {
 
 .ctrl--select option { background: #080e1f; }
 
+/* Text input */
+.ctrl--text {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: #c8eeff;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 8px 12px;
+  outline: none;
+  min-width: 220px;
+  transition: border-color var(--dur) var(--ease);
+}
+
+.ctrl--text::placeholder { color: rgba(200,238,255,0.3); }
+
+.ctrl--text:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-border);
+}
+
+.settings-link-text {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
 /* Range slider */
 .range-group {
   display: flex;

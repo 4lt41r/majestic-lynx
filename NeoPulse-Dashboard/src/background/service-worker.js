@@ -11,7 +11,8 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
   });
 
   // Allow the side panel to be opened from the extension's action button
-  await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
+  // Clicking the toolbar icon on any tab opens the side panel
+  await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
   if (reason === 'install') {
     console.log('[NeoPulse] Installed — defaults set.');

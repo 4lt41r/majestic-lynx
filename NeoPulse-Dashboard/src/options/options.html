@@ -195,6 +195,44 @@
 
       </section>
 
+      <!-- ── Section: Weather ── -->
+      <section class="settings-section glass-card">
+        <h2 class="settings-section__title">
+          <span aria-hidden="true">◆</span> Weather
+        </h2>
+        <p class="settings-section__desc">
+          Powered by <span class="settings-link-text">wttr.in</span> — completely free, no account or API key needed. Just enter a city name.
+        </p>
+
+        <div class="settings-row">
+          <label class="settings-label" for="weatherCity">
+            City
+            <span class="settings-hint">City name, e.g. London or New York</span>
+          </label>
+          <input
+            type="text"
+            id="weatherCity"
+            name="weatherCity"
+            class="ctrl ctrl--text"
+            placeholder="e.g. London"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <div class="settings-row">
+          <label class="settings-label" for="weatherUnits">
+            Temperature units
+            <span class="settings-hint">Celsius (metric) or Fahrenheit (imperial)</span>
+          </label>
+          <select id="weatherUnits" name="weatherUnits" class="ctrl ctrl--select">
+            <option value="metric">Celsius (°C)</option>
+            <option value="imperial">Fahrenheit (°F)</option>
+          </select>
+        </div>
+
+      </section>
+
       <!-- ── Section: Reset ── -->
       <section class="settings-section settings-section--danger glass-card">
         <h2 class="settings-section__title settings-section__title--danger">

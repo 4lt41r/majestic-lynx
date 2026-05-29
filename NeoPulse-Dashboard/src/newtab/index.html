@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://www.google.com https://cdn.jsdelivr.net; img-src 'self' data:; script-src 'self'" />
+        content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://www.google.com https://cdn.jsdelivr.net https://httpbin.org https://ipwho.is https://wttr.in; img-src 'self' data:; script-src 'self'" />
   <title>NeoPulse Dashboard</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -81,8 +81,9 @@
 
         <div class="glass-card metric-card" id="card-upload">
           <div class="metric-card__label">Upload</div>
-          <div class="metric-card__value" id="metric-upload">N/A</div>
-          <div class="metric-card__unit">browser limitation</div>
+          <div class="metric-card__value" id="metric-upload">—</div>
+          <div class="metric-card__unit" id="metric-upload-unit">Mbps <span class="approx-tag">approx</span></div>
+          <div class="metric-card__bar"><div class="metric-card__bar-fill" id="bar-upload"></div></div>
         </div>
 
         <div class="glass-card metric-card" id="card-ip">
@@ -120,10 +121,14 @@
 
     <!-- ── Bookmarks (hidden by default, enabled via settings) ── -->
     <section id="bookmarks" class="glass-card bookmarks-section" hidden aria-label="Bookmarks">
-      <div class="section-title">Bookmarks</div>
-      <div id="bookmarks-list" class="bookmarks-list">
-        <!-- Items injected by app.js when bookmarks permission enabled -->
+      <div class="bookmarks-header">
+        <div class="section-title">Bookmarks</div>
+        <div class="bm-tabs" role="tablist">
+          <button class="bm-tab-btn bm-tab-btn--active" data-tab="recent" role="tab" type="button">Recent</button>
+          <button class="bm-tab-btn" data-tab="domain" role="tab" type="button">By Domain</button>
+        </div>
       </div>
+      <div id="bookmarks-list" class="bookmarks-list"></div>
     </section>
 
     <!-- ── Notes Widget ── -->

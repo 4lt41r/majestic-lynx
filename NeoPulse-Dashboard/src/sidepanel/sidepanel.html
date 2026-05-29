@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://www.google.com https://cdn.jsdelivr.net; script-src 'self'" />
+        content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://www.google.com https://cdn.jsdelivr.net https://httpbin.org https://ipwho.is https://wttr.in; img-src 'self' data:; script-src 'self'" />
   <title>NeoPulse Panel</title>
   <link rel="stylesheet" href="sidepanel.css" />
 </head>
@@ -14,62 +14,122 @@
 
   <div class="panel">
 
-    <!-- ── Header ── -->
+    <!-- ── Top bar: logo + status ── -->
     <header class="panel-header">
       <span class="panel-header__logo" aria-hidden="true">◈</span>
       <span class="panel-header__title">NeoPulse</span>
-      <span id="network-status-dot" class="status-dot status-dot--unknown" title="Network status"></span>
-      <span id="network-status-label" class="status-label">Checking…</span>
+      <div class="panel-header__status">
+        <span id="network-status-dot" class="status-dot status-dot--unknown" title="Network status"></span>
+        <span id="network-status-label" class="status-label">Checking…</span>
+      </div>
     </header>
 
-    <!-- ── Network stats ── -->
-    <section class="panel-section" aria-label="Network statistics">
-      <div class="section-title">Network</div>
+    <!-- ── Tab navigation ── -->
+    <nav class="panel-tabs" role="tablist" aria-label="Panel sections">
+      <button class="panel-tab panel-tab--active" data-tab="home"      role="tab" aria-selected="true"  title="Home"      type="button">
+        <span class="panel-tab__icon" aria-hidden="true">◉</span>
+        <span class="panel-tab__label">Home</span>
+      </button>
+      <button class="panel-tab" data-tab="bookmarks" role="tab" aria-selected="false" title="Bookmarks" type="button">
+        <span class="panel-tab__icon" aria-hidden="true">⊞</span>
+        <span class="panel-tab__label">Bookmarks</span>
+      </button>
+      <button class="panel-tab" data-tab="weather"   role="tab" aria-selected="false" title="Weather"   type="button">
+        <span class="panel-tab__icon" aria-hidden="true">☁</span>
+        <span class="panel-tab__label">Weather</span>
+      </button>
+      <button class="panel-tab" data-tab="notes"     role="tab" aria-selected="false" title="Notes"     type="button">
+        <span class="panel-tab__icon" aria-hidden="true">≡</span>
+        <span class="panel-tab__label">Notes</span>
+      </button>
+    </nav>
 
-      <div class="stat-grid">
+    <!-- ── Tab panels ── -->
+    <div class="panel-body">
 
-        <div class="stat-card glass-card">
-          <div class="stat-card__label">Latency</div>
-          <div class="stat-card__value" id="metric-latency">—</div>
-          <div class="stat-card__unit">ms <span class="approx-tag">approx</span></div>
+      <!-- Home tab -->
+      <div id="tab-home" class="tab-panel tab-panel--active" role="tabpanel">
+
+        <div class="panel-section">
+          <div class="section-title">Network</div>
+          <div class="stat-grid">
+            <div class="stat-card glass-card">
+              <div class="stat-card__label">Latency</div>
+              <div class="stat-card__value" id="metric-latency">—</div>
+              <div class="stat-card__unit">ms <span class="approx-tag">approx</span></div>
+            </div>
+            <div class="stat-card glass-card">
+              <div class="stat-card__label">Download</div>
+              <div class="stat-card__value" id="metric-download">—</div>
+              <div class="stat-card__unit">Mbps <span class="approx-tag">approx</span></div>
+            </div>
+            <div class="stat-card glass-card">
+              <div class="stat-card__label">Upload</div>
+              <div class="stat-card__value" id="metric-upload">—</div>
+              <div class="stat-card__unit" id="metric-upload-unit">Mbps <span class="approx-tag">approx</span></div>
+            </div>
+            <div class="stat-card glass-card">
+              <div class="stat-card__label">Public IP</div>
+              <div class="stat-card__value stat-card__value--sm" id="metric-ip">—</div>
+              <div class="stat-card__unit" id="metric-isp">ISP: —</div>
+            </div>
+          </div>
+          <div class="stat-actions">
+            <button id="run-speed-test" class="btn btn--neon" type="button">Run Test</button>
+            <span id="last-tested" class="last-tested">Not tested</span>
+          </div>
         </div>
 
-        <div class="stat-card glass-card">
-          <div class="stat-card__label">Download</div>
-          <div class="stat-card__value" id="metric-download">—</div>
-          <div class="stat-card__unit">Mbps <span class="approx-tag">approx</span></div>
+        <div class="panel-section">
+          <div class="section-title">Quick Links</div>
+          <div id="quick-links-grid" class="quick-links-grid">
+            <!-- Populated by sidepanel.js -->
+          </div>
         </div>
 
-      </div>
+      </div><!-- /tab-home -->
 
-      <div class="stat-actions">
-        <button id="run-speed-test" class="btn btn--neon" type="button">Run Test</button>
-        <span id="last-tested" class="last-tested">Not tested</span>
-      </div>
-    </section>
+      <!-- Bookmarks tab -->
+      <div id="tab-bookmarks" class="tab-panel" role="tabpanel" hidden>
+        <div class="panel-section panel-section--fill">
+          <div class="bm-panel-header">
+            <div class="section-title">Bookmarks</div>
+            <div class="bm-tabs">
+              <button class="bm-tab-btn bm-tab-btn--active" data-tab="recent" type="button">Recent</button>
+              <button class="bm-tab-btn" data-tab="domain" type="button">By Domain</button>
+            </div>
+          </div>
+          <div id="panel-bookmarks-list" class="bookmarks-list panel-bookmarks-list"></div>
+        </div>
+      </div><!-- /tab-bookmarks -->
 
-    <!-- ── Quick links ── -->
-    <section class="panel-section" aria-label="Quick links">
-      <div class="section-title">Quick Links</div>
-      <div id="quick-links-grid" class="quick-links-grid">
-        <!-- Populated by sidepanel.js -->
-      </div>
-    </section>
+      <!-- Weather tab -->
+      <div id="tab-weather" class="tab-panel" role="tabpanel" hidden>
+        <div class="panel-section">
+          <div id="panel-weather-content" class="panel-weather">
+            <div class="weather-loading">Loading weather…</div>
+          </div>
+        </div>
+      </div><!-- /tab-weather -->
 
-    <!-- ── Notes ── -->
-    <section class="panel-section panel-section--grow" aria-label="Notes">
-      <div class="section-title">
-        Notes
-        <span id="notes-saved-indicator" class="saved-indicator" aria-live="polite"></span>
-      </div>
-      <textarea
-        id="notes-input"
-        class="notes-textarea"
-        placeholder="Your notes sync with the dashboard…"
-        aria-label="Personal notes"
-        spellcheck="true"
-      ></textarea>
-    </section>
+      <!-- Notes tab -->
+      <div id="tab-notes" class="tab-panel tab-panel--fill" role="tabpanel" hidden>
+        <div class="panel-section panel-section--fill">
+          <div class="section-title">
+            Notes
+            <span id="notes-saved-indicator" class="saved-indicator" aria-live="polite"></span>
+          </div>
+          <textarea
+            id="notes-input"
+            class="notes-textarea"
+            placeholder="Your notes sync with the dashboard…"
+            aria-label="Personal notes"
+            spellcheck="true"
+          ></textarea>
+        </div>
+      </div><!-- /tab-notes -->
+
+    </div><!-- /.panel-body -->
 
     <!-- ── Footer ── -->
     <footer class="panel-footer">
