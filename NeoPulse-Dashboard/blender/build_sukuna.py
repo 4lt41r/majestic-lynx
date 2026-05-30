@@ -227,7 +227,7 @@ for ti, (lx, ly, lz, w, h) in enumerate(TAT_FACE):
     bpy.ops.mesh.primitive_plane_add(size=1, location=rp(lx, ly, lz))
     tat = bpy.context.active_object
     tat.name = f"TatFace_{ti}"
-    tat.scale = (w / 2, 0.005, h / 2)   # flat plane — thin strip
+    tat.scale = (w / 2, 0.015, h / 2)   # flat plane — thin strip
     bpy.ops.object.transform_apply(scale=True)
     assign_mat(tat, tat_mat)
 
@@ -243,7 +243,7 @@ for ti, (lx, ly, lz, w, h) in enumerate(TAT_TORSO):
     bpy.ops.mesh.primitive_plane_add(size=1, location=rp(lx, ly, lz))
     tat = bpy.context.active_object
     tat.name = f"TatTorso_{ti}"
-    tat.scale = (w / 2, 0.005, h / 2)
+    tat.scale = (w / 2, 0.015, h / 2)
     bpy.ops.object.transform_apply(scale=True)
     assign_mat(tat, tat_mat)
 
