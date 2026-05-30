@@ -1,0 +1,125 @@
+"""
+NeoPulse Dashboard — Room Builder
+Run from Blender's Scripting tab (Blender >= 3.6).
+Exports: src/assets/room.glb
+"""
+import bpy
+import math
+import random
+
+# ── Edit this path to match your project location ──────────────
+OUTPUT_PATH = r"F:\Test\NeoPulse-Dashboard\src\assets\room.glb"
+
+# ── Coordinate helpers ─────────────────────────────────────────
+# Three.js uses Y-up. Blender uses Z-up.
+# tp(tx, ty, tz)  → Blender position from Three.js position
+# ts(tw, th, td)  → Blender half-scale from Three.js BoxGeometry(w, h, d)
+def tp(tx, ty, tz): return (tx, -tz, ty)
+def ts(tw, th, td): return (tw / 2, td / 2, th / 2)
+
+# ── Seeded RNG matching room.js mulberry32(seed) behaviour ─────
+# Python random with fixed seed — deterministic skull placement
+rng = random.Random(12345)
+
+def rng_next(): return rng.random()
+
+# ── Material helpers ──────────────────────────────────────────
+def make_mat(name, base_color, roughness=0.9, metallic=0.0,
+             emit_color=None, emit_strength=2.0, alpha=1.0):
+    mat = bpy.data.materials.new(name=name)
+    mat.use_nodes = True
+    bsdf = mat.node_tree.nodes.get("Principled BSDF")
+    bsdf.inputs["Base Color"].default_value = (*base_color, 1.0)
+    bsdf.inputs["Roughness"].default_value  = roughness
+    bsdf.inputs["Metallic"].default_value   = metallic
+    if emit_color:
+        bsdf.inputs["Emission Color"].default_value    = (*emit_color, 1.0)
+        bsdf.inputs["Emission Strength"].default_value = emit_strength
+    if alpha < 1.0:
+        bsdf.inputs["Alpha"].default_value = alpha
+        mat.blend_method   = 'BLEND'
+        mat.shadow_method  = 'NONE'
+    return mat
+
+def assign_mat(obj, mat):
+    if obj.data.materials:
+        obj.data.materials[0] = mat
+    else:
+        obj.data.materials.append(mat)
+
+def add_subsurf(obj, levels):
+    mod = obj.modifiers.new("Subsurf", type='SUBSURF')
+    mod.levels = mod.render_levels = levels
+
+def add_displace(obj, scale=0.8, strength=0.08):
+    tex      = bpy.data.textures.new(f"Noise_{obj.name}", type='MUSGRAVE')
+    tex.musgrave_type = 'FBM'
+    tex.noise_scale   = scale
+    tex.octaves       = 6
+    mod               = obj.modifiers.new("Displace", type='DISPLACE')
+    mod.texture       = tex
+    mod.strength      = strength
+
+# ── Clear default scene ────────────────────────────────────────
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.object.delete(use_global=False)
+
+# ── Materials ─────────────────────────────────────────────────
+stone_mat  = make_mat("Stone",     (0.04, 0.02, 0.02), roughness=0.90)
+blood_mat  = make_mat("BloodPool", (0.20, 0.00, 0.00), roughness=0.08, metallic=0.0)
+bone_mat   = make_mat("Bone",      (0.78, 0.72, 0.60), roughness=0.85)
+dark_mat   = make_mat("Dark",      (0.07, 0.07, 0.07), roughness=0.90)
+iron_mat   = make_mat("Iron",      (0.27, 0.27, 0.27), roughness=0.70, metallic=0.5)
+flame_mat  = make_mat("Flame",     (1.00, 0.40, 0.00), roughness=1.0,
+                      emit_color=(1.00, 0.20, 0.00), emit_strength=3.0)
+
+# ── Floor ─────────────────────────────────────────────────────
+# Three.js: PlaneGeometry(24,24) at (0,0,0) rotated -PI/2 on X (horizontal)
+bpy.ops.mesh.primitive_grid_add(x_subdivisions=32, y_subdivisions=32, size=24,
+                                location=tp(0, 0, 0))
+floor = bpy.context.active_object
+floor.name = "Floor"
+add_displace(floor, scale=1.2, strength=0.04)
+assign_mat(floor, stone_mat)
+
+# ── Left wall ─────────────────────────────────────────────────
+# Three.js: BoxGeometry(0.3, 10, 24) at (-9, 5, 0)
+bpy.ops.mesh.primitive_cube_add(location=tp(-9, 5, 0))
+left_wall = bpy.context.active_object
+left_wall.name = "WallLeft"
+left_wall.scale = ts(0.3, 10, 24)
+bpy.ops.object.transform_apply(scale=True)
+add_subsurf(left_wall, 2)
+add_displace(left_wall, scale=0.6, strength=0.05)
+assign_mat(left_wall, stone_mat)
+
+# ── Right wall ────────────────────────────────────────────────
+bpy.ops.mesh.primitive_cube_add(location=tp(9, 5, 0))
+right_wall = bpy.context.active_object
+right_wall.name = "WallRight"
+right_wall.scale = ts(0.3, 10, 24)
+bpy.ops.object.transform_apply(scale=True)
+add_subsurf(right_wall, 2)
+add_displace(right_wall, scale=0.6, strength=0.05)
+assign_mat(right_wall, stone_mat)
+
+# ── Back wall ─────────────────────────────────────────────────
+# Three.js: BoxGeometry(18, 10, 0.3) at (0, 5, -8)
+bpy.ops.mesh.primitive_cube_add(location=tp(0, 5, -8))
+back_wall = bpy.context.active_object
+back_wall.name = "WallBack"
+back_wall.scale = ts(18, 10, 0.3)
+bpy.ops.object.transform_apply(scale=True)
+add_subsurf(back_wall, 2)
+add_displace(back_wall, scale=0.6, strength=0.05)
+assign_mat(back_wall, stone_mat)
+
+# ── Blood pool placeholder ────────────────────────────────────
+# Three.js: PlaneGeometry(12,12) at (0, 0.01, -1) — flat, no displacement
+# Named "BloodPool" so room-gltf.js can swap its material at runtime
+bpy.ops.mesh.primitive_plane_add(size=1, location=tp(0, 0.01, -1))
+blood_pool = bpy.context.active_object
+blood_pool.name = "BloodPool"
+blood_pool.scale = (12, 12, 1)  # size=1 plane → scale 12 → 12×12 world units
+bpy.ops.object.transform_apply(scale=True)
+assign_mat(blood_pool, blood_mat)
