@@ -17,6 +17,7 @@ export async function buildRoomGltf(scene) {
         root.add(gltf.scene);
 
         const bloodMat = createBloodMaterial();
+        let bloodPoolFound = false;
 
         gltf.scene.traverse(child => {
           if (!child.isMesh) return;
@@ -25,8 +26,14 @@ export async function buildRoomGltf(scene) {
           if (child.name === 'BloodPool') {
             child.material    = bloodMat;
             child.renderOrder = 1;
+            bloodPoolFound    = true;
           }
         });
+
+        if (!bloodPoolFound) {
+          bloodMat.dispose();
+          console.warn('[NeoPulse] room.glb has no BloodPool mesh — blood shader not applied');
+        }
 
         resolve(root);
       },
