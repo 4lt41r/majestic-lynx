@@ -2,7 +2,8 @@ import { DEFAULTS, SEARCH_ENGINES, VERSION } from '../shared/constants.js';
 import { getPrefs, setPrefs, onPrefsChange }  from '../shared/storage.js';
 import { runNetworkCheck, scheduleAutoRefresh } from '../shared/network.js';
 import { initScene, startLoop, getCamera, getRenderer, getRaycaster } from './scene.js';
-import { buildRoom, buildSkeletonPile, bloodUniforms, animateRoom } from './room.js';
+import { bloodUniforms, animateRoom } from './room.js';
+import { buildRoomGltf } from './room-gltf.js';
 import { buildSukuna, animateSukuna, disposeSukuna } from './sukuna.js';
 import { buildClock, buildQuickLinkPanels, buildNetworkStrip, buildSearchPedestal } from './ui-objects.js';
 
@@ -30,8 +31,7 @@ async function init() {
   _scene = scene;
 
   // ── Build 3D scene ──
-  buildRoom(scene);
-  buildSkeletonPile(scene);
+  await buildRoomGltf(scene);
   sukunaRefs    = await buildSukuna(scene, prefs.sceneMode ?? 'toon');
   clockObj      = buildClock(scene);
   quickLinksObj = buildQuickLinkPanels(
