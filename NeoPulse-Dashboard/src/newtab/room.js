@@ -91,6 +91,25 @@ const BLOOD_FRAG = `
 
 // Exported so app.js can increment time uniform each frame
 export const bloodUniforms = { time: { value: 0 } };
+
+export function createBloodMaterial() {
+  return new ShaderMaterial({
+    uniforms:       bloodUniforms,
+    vertexShader:   BLOOD_VERT,
+    fragmentShader: BLOOD_FRAG,
+    transparent:    true,
+    side:           DoubleSide,
+    depthWrite:     false,
+  });
+}
+
+const TORCH_POSITIONS = [
+  { x: -8.6, z: -3 },
+  { x: -8.6, z:  3 },
+  { x:  8.6, z: -3 },
+  { x:  8.6, z:  3 },
+];
+
 const torchLights = [];
 let   _dustMesh   = null;
 
@@ -130,16 +149,10 @@ export function buildRoom(scene) {
   scene.add(backWall);
 
   // ── Wall torches ──
-  const torchPositions = [
-    { x: -8.6, z: -3 },
-    { x: -8.6, z:  3 },
-    { x:  8.6, z: -3 },
-    { x:  8.6, z:  3 },
-  ];
   const bracketMat = new MeshStandardMaterial({ color: 0x444444, roughness: 0.7, metalness: 0.5 });
   const flameMat   = new MeshStandardMaterial({ color: 0xff6600, emissive: 0xff3300, emissiveIntensity: 2.0, roughness: 1 });
 
-  torchPositions.forEach(({ x, z }) => {
+  TORCH_POSITIONS.forEach(({ x, z }) => {
     const bracket = new Mesh(new CylinderGeometry(0.05, 0.05, 0.4, 8), bracketMat);
     bracket.position.set(x, 4.5, z);
     bracket.rotation.z = Math.PI / 2;
@@ -148,14 +161,9 @@ export function buildRoom(scene) {
     const flame = new Mesh(new SphereGeometry(0.12, 8, 8), flameMat);
     flame.position.set(x, 4.8, z);
     scene.add(flame);
-
-    const light = new PointLight(0xff4400, 2.5, 10, 2);
-    light.position.set(x, 4.9, z);
-    light.castShadow = false;
-    scene.add(light);
-
-    torchLights.push({ light, base: 2.5 });
   });
+
+  buildAtmosphereEffects(scene);
 
   // ── Blood pool ──
   const bloodMesh = new Mesh(
@@ -184,7 +192,17 @@ export function buildRoom(scene) {
     scene.add(drop);
   }
 
-  // ── Dust / ember particles ──
+}
+
+export function buildAtmosphereEffects(scene) {
+  TORCH_POSITIONS.forEach(({ x, z }) => {
+    const light = new PointLight(0xff4400, 2.5, 10, 2);
+    light.position.set(x, 4.9, z);
+    light.castShadow = false;
+    scene.add(light);
+    torchLights.push({ light, base: 2.5 });
+  });
+
   const PARTICLE_COUNT = 120;
   const positions = new Float32Array(PARTICLE_COUNT * 3);
   const rand2 = mulberry32(777);
