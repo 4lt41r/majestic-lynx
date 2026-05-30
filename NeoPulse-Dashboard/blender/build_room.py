@@ -193,3 +193,44 @@ for i in range(40):
         )
         bpy.ops.object.transform_apply(rotation=True)
         assign_mat(bone, bone_mat)
+
+# ── Wall torches ──────────────────────────────────────────────
+# Torch positions from room.js: { x: ±8.6, z: ±3 } at y=4.5/4.8
+TORCH_POSITIONS = [
+    (-8.6, -3), (-8.6, 3), (8.6, -3), (8.6, 3),
+]
+for idx, (tx, tz) in enumerate(TORCH_POSITIONS):
+    tag = f"Torch_{idx}"
+
+    # Bracket — thin horizontal cylinder along X axis
+    # Three.js: CylinderGeometry(0.05,0.05,0.4,8) at (tx,4.5,tz), rotation.z=PI/2
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=8, radius=0.05, depth=0.4,
+        location=tp(tx, 4.5, tz))
+    bracket = bpy.context.active_object
+    bracket.name = f"{tag}_Bracket"
+    # Rotate so the Z-axis cylinder lies horizontally (along Blender Y = Three.js -Z)
+    bracket.rotation_euler = (math.pi / 2, 0, 0)
+    bpy.ops.object.transform_apply(rotation=True)
+    assign_mat(bracket, iron_mat)
+
+    # Flame cone — tapered, pointing up
+    # Three.js: SphereGeometry(0.12) at (tx, 4.8, tz)  →  replaced with cone for realism
+    bpy.ops.mesh.primitive_cone_add(
+        vertices=12, radius1=0.1, radius2=0.01, depth=0.3,
+        location=tp(tx, 4.8, tz))
+    flame = bpy.context.active_object
+    flame.name = f"{tag}_Flame"
+    add_subsurf(flame, 2)
+    assign_mat(flame, flame_mat)
+
+# ── Export to GLB ─────────────────────────────────────────────
+bpy.ops.export_scene.gltf(
+    filepath       = OUTPUT_PATH,
+    export_format  = 'GLB',
+    export_apply   = True,   # apply all modifiers before export
+    export_materials = 'EXPORT',
+    export_cameras = False,
+    use_selection  = False,
+)
+print(f"[NeoPulse] room.glb exported to: {OUTPUT_PATH}")
