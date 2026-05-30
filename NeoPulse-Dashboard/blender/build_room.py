@@ -123,3 +123,72 @@ blood_pool.name = "BloodPool"
 blood_pool.scale = (12, 12, 1)  # size=1 plane → scale 12 → 12×12 world units
 bpy.ops.object.transform_apply(scale=True)
 assign_mat(blood_pool, blood_mat)
+
+# ── Throne back — bone columns ────────────────────────────────
+# Three.js: CylinderGeometry(0.1, 0.1, 2.5, 8) at (±0.9, 3.45, -4)
+for side in (-1, 1):
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=16, radius=0.1, depth=2.5,
+        location=tp(side * 0.9, 3.45, -4))
+    col = bpy.context.active_object
+    col.name = f"ThroneCol_{'L' if side < 0 else 'R'}"
+    assign_mat(col, bone_mat)
+
+# ── Throne back — crossbeams ──────────────────────────────────
+# Three.js: BoxGeometry(1.8, 0.12, 0.12) at (0, 2.2+b*0.8, -4)
+for b in range(3):
+    bpy.ops.mesh.primitive_cube_add(location=tp(0, 2.2 + b * 0.8, -4))
+    beam = bpy.context.active_object
+    beam.name = f"ThroneBeam_{b}"
+    beam.scale = ts(1.8, 0.12, 0.12)
+    bpy.ops.object.transform_apply(scale=True)
+    assign_mat(beam, dark_mat)
+
+# ── Skeleton pile ─────────────────────────────────────────────
+# Mimics room.js buildSkeletonPile — seeded random positions around z=-4
+for i in range(40):
+    angle        = rng_next() * math.pi * 2
+    height_fac   = rng_next()
+    radius       = 2.5 * (1 - height_fac * 0.7) * rng_next()
+    bx           = math.cos(angle) * radius
+    tz_pos       = -4 + math.sin(angle) * radius          # Three.js Z
+    ty_pos       = height_fac * 1.8 * max(0, 1 - radius / 2.5)  # Three.js Y
+
+    if rng_next() < 0.25:
+        # Skull — box head
+        bpy.ops.mesh.primitive_cube_add(location=tp(bx, ty_pos + 0.1, tz_pos))
+        skull = bpy.context.active_object
+        skull.name = f"Skull_{i}"
+        skull.scale = ts(0.25, 0.20, 0.22)
+        skull.rotation_euler = (
+            rng_next() * 0.8 - 0.4,
+            rng_next() * math.pi * 2,
+            rng_next() * 0.6 - 0.3,
+        )
+        bpy.ops.object.transform_apply(scale=True, rotation=True)
+        assign_mat(skull, bone_mat)
+
+        # Eye sockets
+        for e in range(2):
+            offset = 0.065 if e else -0.065
+            bpy.ops.mesh.primitive_uv_sphere_add(
+                radius=0.038, segments=8, ring_count=6,
+                location=tp(bx + offset, ty_pos + 0.12, tz_pos - 0.09))
+            eye = bpy.context.active_object
+            eye.name = f"SkullEye_{i}_{e}"
+            assign_mat(eye, dark_mat)
+    else:
+        # Long bone — cylinder
+        bone_len = 0.6 + rng_next() * 0.8
+        bpy.ops.mesh.primitive_cylinder_add(
+            vertices=6, radius=0.037, depth=bone_len,
+            location=tp(bx, ty_pos + bone_len / 2, tz_pos))
+        bone = bpy.context.active_object
+        bone.name = f"Bone_{i}"
+        bone.rotation_euler = (
+            rng_next() * math.pi,
+            rng_next() * math.pi,
+            rng_next() * math.pi,
+        )
+        bpy.ops.object.transform_apply(rotation=True)
+        assign_mat(bone, bone_mat)
