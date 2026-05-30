@@ -165,3 +165,95 @@ for li, (lx, ly, lz, rx, ry, rz) in enumerate(LEG_DEFS):
     bpy.ops.object.transform_apply(rotation=True)
     add_subsurf(leg, 2)
     assign_mat(leg, robe_mat)
+
+# ── Main arms (×2) ───────────────────────────────────────────
+# Three.js: CylinderGeometry(0.15,0.17,1.1) at (±0.8,-0.3,0.4), rotation (0.8,0,±0.15)
+ARM_DEFS = [
+    (-0.8, -0.3, 0.4,  0.8, 0.0, -0.15, body_mat, "ArmL"),
+    ( 0.8, -0.3, 0.4,  0.8, 0.0,  0.15, body_mat, "ArmR"),
+]
+for (lx, ly, lz, rx, ry, rz, mat, name) in ARM_DEFS:
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=16, radius=0.16, depth=1.1,
+        location=rp(lx, ly, lz))
+    arm = bpy.context.active_object
+    arm.name = name
+    arm.rotation_euler = (rx, -rz, ry)
+    bpy.ops.object.transform_apply(rotation=True)
+    add_subsurf(arm, 2)
+    assign_mat(arm, mat)
+
+# ── Ghost arms (×4, translucent) ─────────────────────────────
+GHOST_DEFS = [
+    (-1.05, -0.1, -0.1,  0.4, 0.0, -0.5, ghost_mat1, "GhostArmL1"),
+    (-1.25,  0.1, -0.3,  0.2, 0.0, -0.8, ghost_mat2, "GhostArmL2"),
+    ( 1.05, -0.1, -0.1,  0.4, 0.0,  0.5, ghost_mat1, "GhostArmR1"),
+    ( 1.25,  0.1, -0.3,  0.2, 0.0,  0.8, ghost_mat2, "GhostArmR2"),
+]
+for (lx, ly, lz, rx, ry, rz, mat, name) in GHOST_DEFS:
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=12, radius=0.14, depth=1.1,
+        location=rp(lx, ly, lz))
+    ga = bpy.context.active_object
+    ga.name = name
+    ga.rotation_euler = (rx, -rz, ry)
+    bpy.ops.object.transform_apply(rotation=True)
+    add_subsurf(ga, 1)
+    assign_mat(ga, mat)
+
+# ── Four eyes ─────────────────────────────────────────────────
+# Three.js: SphereGeometry(0.058) at local positions, pure emissive red
+EYE_POS = [
+    (-0.17, 1.37, 0.47), ( 0.17, 1.37, 0.47),
+    (-0.17, 1.58, 0.47), ( 0.17, 1.58, 0.47),
+]
+for ei, (lx, ly, lz) in enumerate(EYE_POS):
+    bpy.ops.mesh.primitive_uv_sphere_add(
+        segments=12, ring_count=8, radius=0.062,
+        location=rp(lx, ly, lz))
+    eye = bpy.context.active_object
+    eye.name = f"Eye_{ei}"
+    assign_mat(eye, eye_mat)
+
+# ── Face tattoos ──────────────────────────────────────────────
+# Three horizontal bars across forehead (thin planes flush to face surface)
+TAT_FACE = [
+    # (lx, ly, lz, width, height)
+    (0.0, 1.60, 0.46,  0.60, 0.03),   # forehead bar top
+    (0.0, 1.42, 0.47,  0.58, 0.03),   # forehead bar mid
+    (0.0, 1.24, 0.46,  0.56, 0.03),   # cheek bar
+]
+for ti, (lx, ly, lz, w, h) in enumerate(TAT_FACE):
+    bpy.ops.mesh.primitive_plane_add(size=1, location=rp(lx, ly, lz))
+    tat = bpy.context.active_object
+    tat.name = f"TatFace_{ti}"
+    tat.scale = (w / 2, 0.005, h / 2)   # flat plane — thin strip
+    bpy.ops.object.transform_apply(scale=True)
+    assign_mat(tat, tat_mat)
+
+# ── Torso tattoos ─────────────────────────────────────────────
+# Diamond chevron pattern on chest (thin planes)
+TAT_TORSO = [
+    (0.0,  0.35, 0.52,  0.90, 0.04),
+    (0.0,  0.10, 0.52,  0.80, 0.04),
+    (0.0, -0.15, 0.52,  0.70, 0.04),
+    (0.0, -0.38, 0.52,  0.55, 0.04),
+]
+for ti, (lx, ly, lz, w, h) in enumerate(TAT_TORSO):
+    bpy.ops.mesh.primitive_plane_add(size=1, location=rp(lx, ly, lz))
+    tat = bpy.context.active_object
+    tat.name = f"TatTorso_{ti}"
+    tat.scale = (w / 2, 0.005, h / 2)
+    bpy.ops.object.transform_apply(scale=True)
+    assign_mat(tat, tat_mat)
+
+# ── Export to GLB ─────────────────────────────────────────────
+bpy.ops.export_scene.gltf(
+    filepath         = OUTPUT_PATH,
+    export_format    = 'GLB',
+    export_apply     = True,
+    export_materials = 'EXPORT',
+    export_cameras   = False,
+    use_selection    = False,
+)
+print(f"[NeoPulse] sukuna.glb exported to: {OUTPUT_PATH}")
