@@ -1,6 +1,6 @@
 import { Group, FogExp2 } from '../assets/three.module.min.js';
 import { GLTFLoader } from '../assets/GLTFLoader.js';
-import { buildRoom, buildSkeletonPile, createBloodMaterial } from './room.js';
+import { buildRoom, buildSkeletonPile, createBloodMaterial, buildAtmosphereEffects } from './room.js';
 
 export async function buildRoomGltf(scene) {
   const glbUrl = chrome.runtime.getURL('src/assets/room.glb');
@@ -34,6 +34,8 @@ export async function buildRoomGltf(scene) {
           bloodMat.dispose();
           console.warn('[NeoPulse] room.glb has no BloodPool mesh — blood shader not applied');
         }
+
+        buildAtmosphereEffects(scene);
 
         resolve(root);
       },
