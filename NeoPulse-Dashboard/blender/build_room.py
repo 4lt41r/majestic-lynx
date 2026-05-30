@@ -17,8 +17,9 @@ OUTPUT_PATH = r"F:\Test\NeoPulse-Dashboard\src\assets\room.glb"
 def tp(tx, ty, tz): return (tx, -tz, ty)
 def ts(tw, th, td): return (tw / 2, td / 2, th / 2)
 
-# ── Seeded RNG matching room.js mulberry32(seed) behaviour ─────
-# Python random with fixed seed — deterministic skull placement
+# ── Seeded RNG — deterministic skull placement ─────────────────
+# Python random.Random and JS mulberry32 use different algorithms;
+# placement is reproducible but won't match the JS room exactly.
 rng = random.Random(12345)
 
 def rng_next(): return rng.random()
@@ -172,7 +173,7 @@ for i in range(40):
         for e in range(2):
             offset = 0.065 if e else -0.065
             bpy.ops.mesh.primitive_uv_sphere_add(
-                radius=0.038, segments=8, ring_count=6,
+                radius=0.038, segments=6, ring_count=6,
                 location=tp(bx + offset, ty_pos + 0.12, tz_pos - 0.09))
             eye = bpy.context.active_object
             eye.name = f"SkullEye_{i}_{e}"
@@ -180,8 +181,8 @@ for i in range(40):
     else:
         # Long bone — cylinder
         bone_len = 0.6 + rng_next() * 0.8
-        bpy.ops.mesh.primitive_cylinder_add(
-            vertices=6, radius=0.037, depth=bone_len,
+        bpy.ops.mesh.primitive_cone_add(
+            vertices=6, radius1=0.04, radius2=0.035, depth=bone_len,
             location=tp(bx, ty_pos + bone_len / 2, tz_pos))
         bone = bpy.context.active_object
         bone.name = f"Bone_{i}"
