@@ -37,7 +37,8 @@ def make_mat(name, base_color, roughness=0.8, metallic=0.0,
     if alpha < 1.0:
         bsdf.inputs["Alpha"].default_value = alpha
         mat.blend_method  = 'BLEND'
-        mat.shadow_method = 'NONE'
+        if hasattr(mat, 'shadow_method'):   # removed in Blender 5.x
+            mat.shadow_method = 'NONE'
     return mat
 
 def assign_mat(obj, mat):
