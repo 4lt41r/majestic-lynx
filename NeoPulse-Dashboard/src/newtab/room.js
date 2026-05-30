@@ -91,6 +91,18 @@ const BLOOD_FRAG = `
 
 // Exported so app.js can increment time uniform each frame
 export const bloodUniforms = { time: { value: 0 } };
+
+export function createBloodMaterial() {
+  return new ShaderMaterial({
+    uniforms:       bloodUniforms,
+    vertexShader:   BLOOD_VERT,
+    fragmentShader: BLOOD_FRAG,
+    transparent:    true,
+    side:           DoubleSide,
+    depthWrite:     false,
+  });
+}
+
 const torchLights = [];
 let   _dustMesh   = null;
 
