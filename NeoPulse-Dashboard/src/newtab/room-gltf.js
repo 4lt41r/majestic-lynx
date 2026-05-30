@@ -1,4 +1,4 @@
-import { Group } from '../assets/three.module.min.js';
+import { Group, FogExp2 } from '../assets/three.module.min.js';
 import { GLTFLoader } from '../assets/GLTFLoader.js';
 import { buildRoom, buildSkeletonPile, createBloodMaterial } from './room.js';
 
@@ -10,6 +10,8 @@ export async function buildRoomGltf(scene) {
     loader.load(
       glbUrl,
       gltf => {
+        scene.fog = new FogExp2(0x0a0000, 0.018);
+
         const root = new Group();
         scene.add(root);
         root.add(gltf.scene);
